@@ -1,0 +1,12 @@
+a
+{
+	display:block;
+	font-size:15px;
+	font-weight:bold;
+	padding:5px;
+}
+
+a:hover
+{
+	background:#ff8080;
+}

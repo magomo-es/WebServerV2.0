@@ -1,0 +1,15 @@
+body
+{
+	text-align:center;
+}
+
+body *
+{
+	display:block;
+}
+
+img
+{
+	margin:auto;
+	height:350px;
+}
