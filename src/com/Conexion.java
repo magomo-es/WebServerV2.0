@@ -35,7 +35,7 @@ public class Conexion {
 	InputStream is = socket.getInputStream();
 	ArrayList<Integer> lisa = new ArrayList<>();
 	int content;
-	while ( (content = is.read()) != (-1)  && (is.available()>0) ) {
+	while ( (content = is.read()) != (-1) && (is.available()>0) ) {
 	    // System.out.println("FileAction - receiveContent - fop.write: " + content);
 	    lisa.add(content);
 	}
@@ -73,16 +73,31 @@ public class Conexion {
     public static void outputData(Socket socket, int cont) throws IOException {
 	OutputStream os = socket.getOutputStream();
 	DataOutputStream oos = new DataOutputStream(os); // DataOutputStream: envia datos primitivos 
-	oos.write(cont);
+	oos.writeInt(cont);
     }
     // - - - - - output //
     // - - - - - input ->
     public static int inputDataInt(Socket socket) throws IOException {
-	int cont = 0;
 	InputStream is = socket.getInputStream();
 	DataInputStream dis = new DataInputStream(is); // DataInputStream: recibe datos primitivos 
-	cont = (int)dis.readInt();
-	return cont;
+        return (int)dis.readInt();
+    }
+    // - - - - - input ->
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - OUTPUT/INPUT INT //
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - OUTPUT/INPUT LONG ->
+    // - - - - - output ->
+    public static void outputData(Socket socket, long cont) throws IOException {
+	OutputStream os = socket.getOutputStream();
+	DataOutputStream oos = new DataOutputStream(os); // DataOutputStream: envia datos primitivos 
+	oos.writeLong(cont);
+    }
+    // - - - - - output //
+    // - - - - - input ->
+    public static long inputDataLong(Socket socket) throws IOException {
+	InputStream is = socket.getInputStream();
+	DataInputStream dis = new DataInputStream(is); // DataInputStream: recibe datos primitivos 
+        return (long)dis.readLong();
     }
     // - - - - - input ->
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - OUTPUT/INPUT INT //

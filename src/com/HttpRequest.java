@@ -12,7 +12,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class HttpRequest {
+public class HttpRequest extends Thread {
 
     // https://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html
     // https://tools.ietf.org/html/rfc2616#section-8.2.3
@@ -21,7 +21,8 @@ public class HttpRequest {
     public static final String BLOCKLIMIT = "\r\n\r\n";
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - class attributes
-    
+
+    private Socket m_socketClient;    
     private String m_request;
     private String m_startline;
     private String m_action;
@@ -32,13 +33,23 @@ public class HttpRequest {
     
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - constructor
 
-    HttpRequest(Socket cs) {
+    HttpRequest(Socket clientSocket) {
+	this.m_socketClient = clientSocket;
+
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ejecucion de Thread
+
+    public void run() {
+
 	this.m_request = "";
 
+	String firma = "\r\nFirma: MaGoMo(" + this.getName() + ")";
+	
 	// captura solicitud http
 	try { 
 	    
-	    InputStream is = cs.getInputStream();
+	    InputStream is = this.m_socketClient.getInputStream();
 	    int content;
 	    while ( ((content = is.read()) != (-1)) && (is.available()>0) ) {
 		this.m_request += (char)content;
@@ -93,14 +104,14 @@ public class HttpRequest {
 		    String responsrStatus = "";
 		    try { 
 			if (thefile.m_file.exists()) {
-			    responsrStatus = "HTTP/1.1 "+responseHttpStatus(200) + responseMimeType(this.m_filename) + BLOCKLIMIT;
+			    responsrStatus = "HTTP/1.1 "+responseHttpStatus(200) + responseMimeType(this.m_filename) + firma + BLOCKLIMIT;
 			    System.out.println("responsrStatus: " + responsrStatus);
-			    os = cs.getOutputStream(); 
+			    os = this.m_socketClient.getOutputStream(); 
 			    os.write(toByteArray(responsrStatus));
-			    thefile.sendContent(cs);
+			    thefile.sendContent(this.m_socketClient);
 			} else  { 
-			    os = cs.getOutputStream(); 
-			    responsrStatus = "HTTP/1.1 "+responseHttpStatus(404)+ BLOCKLIMIT;
+			    os = this.m_socketClient.getOutputStream(); 
+			    responsrStatus = "HTTP/1.1 "+responseHttpStatus(404) + firma + BLOCKLIMIT;
 			    System.out.println("responsrStatus: " + responsrStatus);
 			    os.write(toByteArray(responsrStatus));
 			}
@@ -109,8 +120,17 @@ public class HttpRequest {
 		}
 	    }
 	}
-    }
+	
+	
+	// - - - - - - - - - - - - - - - - - - - - cierra conexion ->
+	try { this.m_socketClient.close(); } 
+	catch (IOException ex1) { System.out.println("Salida por catch . " + ex1.getMessage()); }
 
+	System.out.println("conexion finalizada !!!\n");
+	// - - - - - - - - - - - - - - - - - - - - cierra conexion //
+
+    }
+    
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - get & set
     
     public String getRequest() { return this.m_request; }
